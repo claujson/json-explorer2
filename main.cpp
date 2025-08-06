@@ -1344,7 +1344,8 @@ protected:
 				claujson::_Value x(global->get_value_list(0).as_structured_ptr());
 
 				global->erase(0);
-				
+				global->get_value_list(0).as_structured_ptr().null_parent();
+
 				wiz::w.write_parallel(d.GetAllocator(), fileName, x, 0, true);
 				
 				global->add_array_element(std::move(x));
