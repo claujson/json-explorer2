@@ -1342,20 +1342,13 @@ protected:
 				claujson::Array* arr = nullptr;
 				claujson::Object* obj = nullptr;
 				claujson::_Value x(global->get_value_list(0).as_structured_ptr());
+
+				global->erase(0);
 				
-				if (x.is_array()) {
-					arr = x.as_array();
-					claujson::_Value j(arr);
-					wiz::w.write_parallel(d.GetAllocator(), fileName, j, 0, true);
-				}
-				else if (x.is_object()) {
-					obj = x.as_object(); 
-					claujson::_Value j(obj);
-					wiz::w.write_parallel(d.GetAllocator(), fileName, j, 0, true);
-				}
-				else {
-					wiz::w.write_parallel(d.GetAllocator(), fileName, x, 0, true);
-				}
+				wiz::w.write_parallel2(fileName, x, 0, true);
+				
+				global->add_array_element(std::move(x));
+
 				m_code_run_result->SetLabelText(saveFileDialog->GetPath() + wxT(" is saved.."));
 			}
 			else { // mode == 1
