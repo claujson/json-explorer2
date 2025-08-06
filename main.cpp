@@ -594,7 +594,7 @@ protected:
 		try {
 			static claujson::Document document_key = claujson::Document(4 * 1024);
 			static claujson::Document document_value = claujson::Document(4 * 1024);
-
+			
 			if (1 == type && !isStructuredPtr) { // change
 				wiz::Parse(var, document_key);
 				claujson::_Value& x = document_key.Get();
@@ -765,6 +765,7 @@ private:
 		claujson::_Value _diff = claujson::diff(&pool_for_diff, json1.Get(), json2.Get());
 		int valid = _diff.is_valid() && _diff.as_structured_ptr() && _diff.as_array()->empty() == false;
 		
+		// hint <- size > 256 ? 
 		if (hint && valid) {
 			auto x = _diff.as_array();
 			for (int64_t i = 0; x && i < x->get_data_size(); ++i) {
@@ -776,7 +777,7 @@ private:
 				}
 			}
 		}
-		
+
 		*diff = std::move(_diff);
 
 		//claujson::save_parallel("test.json", *diff, 0, true); // debug
@@ -1344,41 +1345,13 @@ protected:
 				
 				if (x.is_array()) {
 					arr = x.as_array();
-					claujson::_Value temp_value = claujson::Array::Make(nullptr);
-					claujson::Array* temp = temp_value.as_array();
-
-					for (int64_t i = 0; i < arr->get_data_size(); ++i) {
-						temp->add_element(arr->get_value_list(i).clone(d.GetAllocator()));
-					}
-
-					wiz::w.write_parallel(d.GetAllocator(), fileName, temp_value, 0, true);
-					
-					arr->clear();
-
-					for (int64_t i = 0; i < temp->get_data_size(); ++i) {
-						arr->add_element(temp->get_value_list(i).clone(d.GetAllocator()));
-					}
-
-					delete temp;
+					claujson::_Value j(arr);
+					wiz::w.write_parallel(d.GetAllocator(), fileName, j, 0, true);
 				}
 				else if (x.is_object()) {
 					obj = x.as_object(); 
-					claujson::_Value temp_value = claujson::Object::Make(nullptr);
-					claujson::Object* temp = temp_value.as_object();
-
-					for (int64_t i = 0; i < obj->get_data_size(); ++i) {
-						temp->add_element(obj->get_const_key_list(i).clone(temp->get_pool()), obj->get_value_list(i).clone(d.GetAllocator()));
-					}
-
-					wiz::w.write_parallel(d.GetAllocator(), fileName, temp_value, 0, true);
-
-					obj->clear();
-
-					for (int64_t i = 0; i < temp->get_data_size(); ++i) {
-						obj->add_element(temp->get_const_key_list(i).clone(obj->get_pool()), temp->get_value_list(i).clone(d.GetAllocator()));
-					}
-
-					delete temp;
+					claujson::_Value j(obj);
+					wiz::w.write_parallel(d.GetAllocator(), fileName, j, 0, true);
 				}
 				else {
 					wiz::w.write_parallel(d.GetAllocator(), fileName, x, 0, true);
@@ -1387,7 +1360,7 @@ protected:
 			}
 			else { // mode == 1
 				if (global->empty() == false) {
-					claujson::_Value x(global->get_value_list(0).clone(global->get_pool()));
+					claujson::_Value x(global->get_value_list(0).clone(d.GetAllocator()));
 					wiz::w.write(fileName, x);
 					m_code_run_result->SetLabelText(saveFileDialog->GetPath() + wxT(" is saved.."));
 				}
@@ -1586,7 +1559,7 @@ protected:
 			dir_text->ChangeValue(Convert(dir));
 
 			RefreshText(now);
-			RefreshTable(now, false);
+			RefreshTable(now);
 
 			{ // diff and patch...	
 				wxDataViewListCtrl* ctrl[4];
@@ -1608,8 +1581,7 @@ protected:
 
 					// refresh_table(...)
 					{
-						dataViewListCtrlNo = dataViewListCtrlNo - 1;
-						if (dataViewListCtrlNo < 0) {
+						{
 							wxDataViewListCtrl* ctrl[4];
 							ctrl[0] = m_dataViewListCtrl1;
 							ctrl[1] = m_dataViewListCtrl2;
@@ -1627,7 +1599,7 @@ protected:
 									textCtrl->ChangeValue(Convert(wiz::ToStringEx(now, start, hint)));
 
 									RefreshText(now);
-									RefreshTable(now, false);
+									RefreshTable(now);
 									text_ctrl_backup = textCtrl->GetValue();
 									return;
 								}
@@ -1636,7 +1608,6 @@ protected:
 							return; // 
 						}
 					}
-
 					return;
 				}
 			//	claujson::clean(diff);
