@@ -1345,7 +1345,7 @@ protected:
 
 				global->erase(0);
 				
-				wiz::w.write_parallel2(fileName, x, 0, true);
+				wiz::w.write_parallel(d.GetAllocator(), fileName, x, 0, true);
 				
 				global->add_array_element(std::move(x));
 
