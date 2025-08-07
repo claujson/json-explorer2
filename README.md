@@ -3,7 +3,7 @@ with wxWidgets
 # Using my proj
 https://github.com/claujson/claujson2 (0.1.0) MIT License
 
-# scj3 MIT License
+# claujson2 MIT License
 MIT License
 
 Copyright (c) 2022-2025 vztpv
