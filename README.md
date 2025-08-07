@@ -1,7 +1,7 @@
 # ClauJsonExplorer2
 with wxWidgets
 # Using my proj
-https://github.com/vztpv/scj3-3 (0.1.0) MIT License
+https://github.com/claujson/claujson2 (0.1.0) MIT License
 
 # scj3 MIT License
 MIT License
