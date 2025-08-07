@@ -1354,7 +1354,7 @@ protected:
 			}
 			else { // mode == 1
 				if (global->empty() == false) {
-					claujson::_Value x(global->get_value_list(0).clone(d.GetAllocator()));
+					claujson::_Value& x(global->get_value_list(0));
 					wiz::w.write(fileName, x);
 					m_code_run_result->SetLabelText(saveFileDialog->GetPath() + wxT(" is saved.."));
 				}
