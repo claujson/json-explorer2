@@ -386,6 +386,7 @@ namespace wiz {
             if (!bremove && isOnlyOne()) { return false; } /// 2013.08.13 false means "no change"??
             if (this->inner->ptr && bremove)
             {
+                this->inner->ptr->Delete();
                 delete this->inner->ptr; this->inner->ptr = nullptr; // no dynamic.
 
                 quit();

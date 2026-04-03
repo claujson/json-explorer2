@@ -6,6 +6,8 @@
 #endif
 
 
+#define WXUSINGDLL
+
 //#include "mimalloc-new-delete.h"
 
 #include <string>
@@ -325,7 +327,7 @@ protected:
 		if (x.is_primitive()) {
 			return;
 		}
-		
+
 		auto sz = x.as_structured_ptr().get_data_size();
 		for (uint64_t i = 0; i < sz; ++i) {
 			// found key...
@@ -367,11 +369,11 @@ protected:
 
 	inline static const claujson::_Value _find = claujson::_Value(&wiz::const_str_pool, "find"sv);
 	inline static const claujson::_Value _find_by_key = claujson::_Value(&wiz::const_str_pool, "find_by_key"sv);
-	inline static const claujson::_Value _find_by_value = claujson::_Value(&wiz::const_str_pool, "find_by_value"sv); 
+	inline static const claujson::_Value _find_by_value = claujson::_Value(&wiz::const_str_pool, "find_by_value"sv);
 
 
 	virtual void m_code_run_buttonOnButtonClick(wxCommandEvent& event) {
-		
+
 		try {
 			static claujson::Document d;
 			d.GetAllocator()->Clear();
@@ -481,9 +483,9 @@ protected:
 public:
 
 	LangFrame(claujson::StructuredPtr* now, int* dataViewListCtrlNo,
-		long long *position, wxDataViewListCtrl* m_dataViewListCtrl1, wxDataViewListCtrl* m_dataViewListCtrl2,
+		long long* position, wxDataViewListCtrl* m_dataViewListCtrl1, wxDataViewListCtrl* m_dataViewListCtrl2,
 		wxDataViewListCtrl* m_dataViewListCtrl3, wxDataViewListCtrl* m_dataViewListCtrl4, wxTextCtrl* textCtrl, wxTextCtrl* dirCtrl,
-		wiz::SmartPtr2<claujson::StructuredPtr> global, int mode, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, 
+		wiz::SmartPtr2<claujson::StructuredPtr> global, int mode, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString,
 		const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(770, 381), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 
 	~LangFrame();
@@ -493,7 +495,7 @@ public:
 LangFrame::LangFrame(claujson::StructuredPtr* now, int* dataViewListCtrlNo,
 	long long* position, wxDataViewListCtrl* m_dataViewListCtrl1, wxDataViewListCtrl* m_dataViewListCtrl2,
 	wxDataViewListCtrl* m_dataViewListCtrl3, wxDataViewListCtrl* m_dataViewListCtrl4, wxTextCtrl* textCtrl, wxTextCtrl* dirCtrl,
-	wiz::SmartPtr2<claujson::StructuredPtr> global, int mode, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, 
+	wiz::SmartPtr2<claujson::StructuredPtr> global, int mode, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
 	const wxSize& size, long style) : wxFrame(parent, id, title, pos, size, style), now(now),
 	ptr_dataViewListCtrlNo(dataViewListCtrlNo), ptr_position(position), textCtrl(textCtrl), global(global), mode(mode)
 {
@@ -509,7 +511,7 @@ LangFrame::LangFrame(claujson::StructuredPtr* now, int* dataViewListCtrlNo,
 
 	m_code = new wxStyledTextCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, wxEmptyString);
 	m_code->SetText(wxString(wxT(
-		"\"ClauJson Explorer \"\n\"#		 vztpv@naver.com\"\n"), wxConvUTF8));
+		"\"ClauJson Explorer \"\n\"#		 vztpv@naver.com\"\n")));
 	m_code->SetUseTabs(true);
 	m_code->SetTabWidth(4);
 	m_code->SetIndent(4);
@@ -576,7 +578,7 @@ LangFrame::~LangFrame()
 class ChangeWindow : public wxDialog
 {
 private:
-	claujson::StructuredPtr ut; 
+	claujson::StructuredPtr ut;
 	bool isStructuredPtr; // ut(true) or it(false)
 	int idx; // ut-idx or it-idx. or ilist idx(type == insert)
 	int type; // change 1, insert 2
@@ -594,7 +596,7 @@ protected:
 		try {
 			static claujson::Document document_key = claujson::Document(4 * 1024);
 			static claujson::Document document_value = claujson::Document(4 * 1024);
-			
+
 			if (1 == type && !isStructuredPtr) { // change
 				wiz::Parse(var, document_key);
 				claujson::_Value& x = document_key.Get();
@@ -631,9 +633,9 @@ protected:
 				}
 			}
 			else if (2 == type) { // insert
-				 
+
 				if (mode == 1 && !ut.empty()) { // case json is only one primitive.
-					return; 
+					return;
 				}
 
 				wiz::Parse(var, document_key);
@@ -764,7 +766,7 @@ private:
 		// diff
 		claujson::_Value _diff = claujson::diff(&pool_for_diff, json1.Get(), json2.Get());
 		int valid = _diff.is_valid() && _diff.as_structured_ptr() && _diff.as_array()->empty() == false;
-		
+
 		// hint <- size > 256 ? 
 		if (hint && valid) {
 			auto x = _diff.as_array();
@@ -790,7 +792,7 @@ private:
 		complete_json.reserve(512);
 
 		std::vector<int> is_array; is_array.reserve(512);
-		
+
 		if (now.is_array()) {
 			complete_json = "[";
 			is_array.push_back('[');
@@ -830,7 +832,7 @@ private:
 					else if (incomplete_text[i] == ']') {
 						if (is_array.empty()) {
 							//complete_json = "[" + complete_json;
-							
+
 							// fail : totally not valid json.
 							return complete_json; //  ""; // empty string is not json.
 						}
@@ -904,7 +906,7 @@ private:
 		sum += wiz::GetIdx(now, position, idx);
 		sum += part.back() * part_size;
 		start = sum;
-	
+
 		wxString text = Convert(wiz::ToStringEx(now, start, hint));
 		textCtrl->ChangeValue(text);
 	}
@@ -922,11 +924,11 @@ private:
 		dataViewListCtrlNo = -1;
 
 		part.clear();
-		part.push_back(0); 
+		part.push_back(0);
 
 		RefreshText(now);
 		RefreshTable(now);
-	
+
 		*changed = false;
 	}
 	void RefreshTable(claujson::StructuredPtr now, bool chk = true)
@@ -989,7 +991,7 @@ private:
 
 			int i = 0;
 
-			for ( ; i < size_per_unit; ++i) {
+			for (; i < size_per_unit; ++i) {
 				value.clear();
 
 				if (global.get_value_list(i).is_structured()) {
@@ -1024,7 +1026,7 @@ private:
 				m_dataViewListCtrl1->AppendItem(value);
 				count++;
 			}
-			for ( ; i < size_per_unit * 2; ++i) {
+			for (; i < size_per_unit * 2; ++i) {
 				value.clear();
 
 				if (global.get_value_list(i).is_structured()) {
@@ -1060,7 +1062,7 @@ private:
 				m_dataViewListCtrl2->AppendItem(value);
 				count++;
 			}
-			for ( ; i < size_per_unit * 3; ++i) {
+			for (; i < size_per_unit * 3; ++i) {
 				value.clear();
 				if (global.get_value_list(i).is_structured()) {
 					if (wiz::ToString(global.get_const_key_list(i)).empty()) {
@@ -1095,7 +1097,7 @@ private:
 				m_dataViewListCtrl3->AppendItem(value);
 				count++;
 			}
-			for ( ; i < last_size; ++i) {
+			for (; i < last_size; ++i) {
 				value.clear();
 
 				if (global.get_value_list(i).is_structured()) {
@@ -1135,13 +1137,13 @@ private:
 	}
 protected:
 	wxTextCtrl* textCtrl;
-	
+
 	wxMenuBar* menuBar;
 	wxMenu* FileMenu;
 	wxMenu* DoMenu;
 	wxMenu* WindowMenu;
-	
-	wxButton* back_button; 
+
+	wxButton* back_button;
 	wxButton* next;
 	wxButton* before;
 	wxTextCtrl* dir_text;
@@ -1168,7 +1170,7 @@ protected:
 			dir += dir_vec[i];
 
 
-			dir += part[i] > 0 ?  std::string("part") + std::to_string(part[i]) : "";
+			dir += part[i] > 0 ? std::string("part") + std::to_string(part[i]) : "";
 		}
 
 		dir_text->ChangeValue(Convert(dir));
@@ -1185,7 +1187,7 @@ protected:
 			for (int i = 0; i < dir_vec.size(); ++i) {
 				dir += "/";
 				dir += dir_vec[i];
-				dir += part[i] > 0 ?  std::string("part") + std::to_string(part[i]) : "";
+				dir += part[i] > 0 ? std::string("part") + std::to_string(part[i]) : "";
 			}
 
 			dir_text->ChangeValue(Convert(dir));
@@ -1242,7 +1244,7 @@ protected:
 
 					//global = wiz::SmartPtr2<claujson::StructuredPtr>(ut.as_structured_ptr());
 				}
-				
+
 				m_code_run_result->ChangeValue(wxString::FromUTF8(temp.c_str()) + wxT("Load Success! file is UTF-8"));
 			}
 			else {
@@ -1253,7 +1255,7 @@ protected:
 			now = *global;
 
 			dataViewListCtrlNo = -1;
-			position = now.get_data_size() > 0? 0 : -1;
+			position = now.get_data_size() > 0 ? 0 : -1;
 
 			run_count = 0;
 
@@ -1280,10 +1282,10 @@ protected:
 		dir_text->Clear();
 		openFileDialog->Destroy();
 	}
-	
+
 	virtual void FileNewMenuOnMenuSelection(wxCommandEvent& event) {
 		if (!isMain) { return; }
-		
+
 		encoding = Encoding::UTF8;
 		//SetConsoleOutputCP(65001); // Windows..
 		//setlocale(LC_ALL, "en_US.UTF-8");
@@ -1302,14 +1304,14 @@ protected:
 		now = *global;
 
 		dataViewListCtrlNo = -1;
-		
+
 		position = -1;
 
 		run_count = 0;
-		
+
 		dir_vec = std::vector<std::string>();
 		dir_text->ChangeValue(wxT("/"));
-		
+
 		m_now_view_text->SetLabelText(wxT("View Mode A"));
 
 
@@ -1325,11 +1327,11 @@ protected:
 
 		text_ctrl_backup.Clear(); dir_vec_backup.clear(); dir_text->Clear();
 	}
-	
+
 	virtual void FileSaveMenuOnMenuSelection(wxCommandEvent& event) {
 		if (!isMain) { return; }
 		static claujson::Document d;
-		
+
 		d.GetAllocator()->Clear();
 
 		wxFileDialog* saveFileDialog = new wxFileDialog(this, _("Save"), "", "",
@@ -1347,7 +1349,7 @@ protected:
 				global->get_value_list(0).as_structured_ptr().null_parent();
 
 				wiz::w.write_parallel(d.GetAllocator(), fileName, x, 0, true);
-				
+
 				global->add_array_element(std::move(x));
 
 				m_code_run_result->SetLabelText(saveFileDialog->GetPath() + wxT(" is saved.."));
@@ -1368,8 +1370,8 @@ protected:
 	virtual void FileExitMenuOnMenuSelection(wxCommandEvent& event) { Close(true); }
 	virtual void InsertMenuOnMenuSelection(wxCommandEvent& event) {
 		if (!isMain) { return; }
-		
-		if (*changed) { 
+
+		if (*changed) {
 			changedEvent();
 		}
 
@@ -1378,7 +1380,7 @@ protected:
 		//}
 
 		int idx = now.get_data_size();// / 4)* dataViewListCtrlNo;
-		
+
 		bool isStructuredPtr = false; // now.get_value_list(idx)->is_user_type();
 
 		//if (dataViewListCtrlNo == -1) { return; }
@@ -1395,7 +1397,8 @@ protected:
 	virtual void ChangeMenuOnMenuSelection(wxCommandEvent& event) {
 		if (!isMain) { return; }
 
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			return;
 		}
 		if (-1 == position) { return; }
@@ -1416,14 +1419,15 @@ protected:
 	}
 	virtual void RemoveMenuOnMenuSelection(wxCommandEvent& event) {
 		if (!isMain) { return; }
-		
-		if (*changed) { changedEvent();
+
+		if (*changed) {
+			changedEvent();
 			return;
 		}
 		if (-1 == position) { return; }
-		
+
 		int idx = wiz::GetIdx(now, position, ((now.get_data_size()) / 4) * dataViewListCtrlNo);
-		
+
 		int type = 1;
 
 		bool isStructuredPtr = now.get_value_list(idx).is_structured();
@@ -1497,7 +1501,7 @@ protected:
 			for (int i = 0; i < dir_vec.size(); ++i) {
 				dir += "/";
 				dir += dir_vec[i];
-				dir += part[i] > 0 ?  std::string("part") + std::to_string(part[i]) : "";
+				dir += part[i] > 0 ? std::string("part") + std::to_string(part[i]) : "";
 			}
 
 			if (dir_vec_backup.empty() == false && dir_vec != dir_vec_backup) {
@@ -1505,9 +1509,9 @@ protected:
 				part.clear(); // .pop_back();
 				dir_vec.clear(); // .pop_back();
 				//}
-				
+
 				dir = ".";  now = *global; part.push_back(0);
-				
+
 				for (int i = 0; i < dir_vec_backup.size(); ++i) {
 
 					std::string name = dir_vec_backup[i]; // {%int} or [%int]
@@ -1546,7 +1550,7 @@ protected:
 
 				RefreshText(now);
 				RefreshTable(now);
-				
+
 				return;
 			}
 
@@ -1566,8 +1570,8 @@ protected:
 				claujson::_Value diff;
 
 				if (real_position == 0 && real_dataViewListCtrlNo == start_dataViewListCtrlNo && text_ctrl_backup.empty() == false &&
-					0 != checkDiff(MakeCompleteJsonText(now, start, Convert(textCtrl->GetValue())), 
-									MakeCompleteJsonText(now, start, Convert(text_ctrl_backup)), &diff, hint)) {
+					0 != checkDiff(MakeCompleteJsonText(now, start, Convert(textCtrl->GetValue())),
+						MakeCompleteJsonText(now, start, Convert(text_ctrl_backup)), &diff, hint)) {
 					// patch to now.. using diff..
 					claujson::_Value temp(now);
 					claujson::patch(now.get_pool(), temp, diff);
@@ -1604,7 +1608,7 @@ protected:
 					}
 					return;
 				}
-			//	claujson::clean(diff);
+				//	claujson::clean(diff);
 
 				RefreshText(now);
 				RefreshTable(now);
@@ -1616,12 +1620,13 @@ protected:
 
 	// keyboard
 	virtual void m_dataViewListCtrl1OnChar(wxKeyEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 		dataViewListCtrlNo = 0; position = m_dataViewListCtrl1->GetSelectedRow();
 
-		int size = now.get_data_size() ;
+		int size = now.get_data_size();
 
 		if (size > part_size) {
 			if (size >= part_size * part.back() && size < part_size * (part.back() + 1)) {
@@ -1649,11 +1654,11 @@ protected:
 		}
 		else if (NK_ENTER == event.GetKeyCode() && position >= 0 && now.get_value_list(wiz::GetIdx(now, position, part.back() * part_size)).is_structured()) { // is_user_type <- position < now.get_data_size()
 			now = now.get_value_list(wiz::GetIdx(now, position, part.back() * part_size)).as_structured_ptr();
-			
 
 
-			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object()? "{" + std::to_string(wiz::GetIdx(now, position , part.back() * part_size))
-				 + "}" : "[" + std::to_string(wiz::GetIdx(now, position, part.back() * part_size))  + "]"), part);
+
+			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, part.back() * part_size))
+				+ "}" : "[" + std::to_string(wiz::GetIdx(now, position, part.back() * part_size)) + "]"), part);
 
 
 			RefreshText(now);
@@ -1677,21 +1682,23 @@ protected:
 			ctrl[dataViewListCtrlNo]->UnselectRow(position);
 
 			if (WXK_UP == event.GetKeyCode() && dataViewListCtrlNo > -1 && position > 0)//< ctrl[dataViewListCtrlNo]->GetItemCount())
-			{position--;
+			{
+				position--;
 				RefreshText2(now);
 			}
 			else if (WXK_DOWN == event.GetKeyCode() && dataViewListCtrlNo > -1 && position >= 0 && position < ctrl[dataViewListCtrlNo]->GetItemCount() - 1)
-			{position++;
+			{
+				position++;
 				RefreshText2(now);
 			}
 			else if (WXK_LEFT == event.GetKeyCode() && dataViewListCtrlNo > 0 && position >= 0 && position < ctrl[dataViewListCtrlNo - 1]->GetItemCount())
 			{
-				
+
 				dataViewListCtrlNo--; RefreshText2(now);
 			}
 			else if (WXK_RIGHT == event.GetKeyCode() && dataViewListCtrlNo < 3 && position >= 0 && position < ctrl[dataViewListCtrlNo + 1]->GetItemCount())
 			{
-				
+
 				dataViewListCtrlNo++; RefreshText2(now);
 			}
 
@@ -1700,7 +1707,8 @@ protected:
 		}
 	}
 	virtual void m_dataViewListCtrl2OnChar(wxKeyEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 
@@ -1731,13 +1739,13 @@ protected:
 			position = -1;
 		}
 		else if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 1 && position >= 0 &&
-				now.get_value_list(wiz::GetIdx(now, position, (length) / 4 + part.back() * part_size)).is_structured()) {
+			now.get_value_list(wiz::GetIdx(now, position, (length) / 4 + part.back() * part_size)).is_structured()) {
 			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 + part.back() * part_size)).as_structured_ptr();
 
-		
+
 			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 + part.back() * part_size)
-				)  + "}" :
-				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 + part.back() * part_size) )  + "]"), part);
+			) + "}" :
+				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 + part.back() * part_size)) + "]"), part);
 
 			RefreshText(now);
 			RefreshTable(now);
@@ -1759,11 +1767,13 @@ protected:
 			ctrl[dataViewListCtrlNo]->UnselectRow(position);
 
 			if (WXK_UP == event.GetKeyCode() && dataViewListCtrlNo > -1 && position > 0)//< ctrl[dataViewListCtrlNo]->GetItemCount())
-			{position--;
+			{
+				position--;
 				RefreshText2(now);
 			}
 			else if (WXK_DOWN == event.GetKeyCode() && dataViewListCtrlNo > -1 && position >= 0 && position < ctrl[dataViewListCtrlNo]->GetItemCount() - 1)
-			{ position++;
+			{
+				position++;
 				RefreshText2(now);
 			}
 			else if (WXK_LEFT == event.GetKeyCode() && dataViewListCtrlNo > 0 && position >= 0 && position < ctrl[dataViewListCtrlNo - 1]->GetItemCount())
@@ -1773,7 +1783,7 @@ protected:
 			}
 			else if (WXK_RIGHT == event.GetKeyCode() && dataViewListCtrlNo < 3 && position >= 0 && position < ctrl[dataViewListCtrlNo + 1]->GetItemCount())
 			{
-				
+
 				dataViewListCtrlNo++;
 				RefreshText2(now);
 			}
@@ -1784,7 +1794,8 @@ protected:
 
 	}
 	virtual void m_dataViewListCtrl3OnChar(wxKeyEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 
@@ -1816,14 +1827,14 @@ protected:
 			position = -1;
 		}
 		else if (NK_ENTER == event.GetKeyCode() && dataViewListCtrlNo == 2 && position >= 0
-				&& now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size) ).is_structured()) {
-			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size) ).as_structured_ptr();
-			
+			&& now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size)).is_structured()) {
+			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size)).as_structured_ptr();
 
-			
+
+
 			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size)
-				)  + "}" :
-				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size) + (length) / 4 * 2 + part.back() * part_size)  + "]"), part);
+			) + "}" :
+				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size) + (length) / 4 * 2 + part.back() * part_size) + "]"), part);
 
 			RefreshText(now);
 			RefreshTable(now);
@@ -1847,16 +1858,18 @@ protected:
 			ctrl[dataViewListCtrlNo]->UnselectRow(position);
 
 			if (WXK_UP == event.GetKeyCode() && dataViewListCtrlNo > -1 && position > 0)//< ctrl[dataViewListCtrlNo]->GetItemCount())
-			{ position--;
+			{
+				position--;
 				RefreshText2(now);
 			}
 			else if (WXK_DOWN == event.GetKeyCode() && dataViewListCtrlNo > -1 && position >= 0 && position < ctrl[dataViewListCtrlNo]->GetItemCount() - 1)
-			{position++;
+			{
+				position++;
 				RefreshText2(now);
 			}
 			else if (WXK_LEFT == event.GetKeyCode() && dataViewListCtrlNo > 0 && position >= 0 && position < ctrl[dataViewListCtrlNo - 1]->GetItemCount())
 			{
-				
+
 				dataViewListCtrlNo--;
 				RefreshText2(now);
 			}
@@ -1871,12 +1884,13 @@ protected:
 		}
 	}
 	virtual void m_dataViewListCtrl4OnChar(wxKeyEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 
 		int size = now.get_data_size();
-		
+
 
 		if (size > part_size) {
 			if (size >= part_size * part.back() && size < part_size * (part.back() + 1)) {
@@ -1905,11 +1919,11 @@ protected:
 			&& now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size)).is_structured()) {
 			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size)).as_structured_ptr();
 
-		
 
 
-			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size))  + "}" :
-				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size) + (length) / 4 * 3 + part.back() * part_size)  + "]"), part);
+
+			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size)) + "}" :
+				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size) + (length) / 4 * 3 + part.back() * part_size) + "]"), part);
 
 			RefreshText(now);
 			RefreshTable(now);
@@ -1933,11 +1947,13 @@ protected:
 			ctrl[dataViewListCtrlNo]->UnselectRow(position);
 
 			if (WXK_UP == event.GetKeyCode() && dataViewListCtrlNo > -1 && position > 0)//< ctrl[dataViewListCtrlNo]->GetItemCount())
-			{position--;
+			{
+				position--;
 				RefreshText2(now);
 			}
 			else if (WXK_DOWN == event.GetKeyCode() && dataViewListCtrlNo > -1 && position >= 0 && position < ctrl[dataViewListCtrlNo]->GetItemCount() - 1)
-			{position++;
+			{
+				position++;
 				RefreshText2(now);
 			}
 			else if (WXK_LEFT == event.GetKeyCode() && dataViewListCtrlNo > 0 && position >= 0 && position < ctrl[dataViewListCtrlNo - 1]->GetItemCount())
@@ -1958,7 +1974,7 @@ protected:
 
 
 	// Part - very long? array or object.
-	virtual void nextOnButtonClick(wxCommandEvent& event) { 
+	virtual void nextOnButtonClick(wxCommandEvent& event) {
 		if (now) {
 			long long length = now.get_data_size();
 
@@ -1972,7 +1988,7 @@ protected:
 				for (int i = 0; i < dir_vec.size(); ++i) {
 					dir += "/";
 					dir += dir_vec[i];
-					dir += part[i] > 0 ?  std::string("part") + std::to_string(part[i]) : "";
+					dir += part[i] > 0 ? std::string("part") + std::to_string(part[i]) : "";
 				}
 
 				dir_text->ChangeValue(Convert(dir));
@@ -2004,7 +2020,8 @@ protected:
 
 	// double click.
 	virtual void m_dataViewListCtrl1OnDataViewListCtrlItemActivated(wxDataViewEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 		int size = now.get_data_size();
@@ -2024,9 +2041,9 @@ protected:
 		if (position >= 0 && now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size) + (length) / 4 * 0 + part.back() * part_size).is_structured()) {
 			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size) + part.back() * part_size).as_structured_ptr();
 
-			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + 
-					std::to_string(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size))  + "}" :
-				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size) )  + "]"), part);
+			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" +
+				std::to_string(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size)) + "}" :
+				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size)) + "]"), part);
 
 
 			RefreshText(now);
@@ -2035,11 +2052,12 @@ protected:
 		}
 	}
 	virtual void m_dataViewListCtrl2OnDataViewListCtrlItemActivated(wxDataViewEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 		int size = now.get_data_size();
-		
+
 
 		if (size > part_size) {
 			if (size >= part_size * part.back() && size < part_size * (part.back() + 1)) {
@@ -2052,26 +2070,27 @@ protected:
 
 		int length = size;
 		dataViewListCtrlNo = 1; position = m_dataViewListCtrl2->GetSelectedRow();
-		if (dataViewListCtrlNo == 1 && position >= 0 && now.get_value_list(wiz::GetIdx(now, position , (length) / 4 + part.back() * part_size) ).is_structured()) {
-			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 + part.back() * part_size) ).as_structured_ptr();
-			
-			
+		if (dataViewListCtrlNo == 1 && position >= 0 && now.get_value_list(wiz::GetIdx(now, position, (length) / 4 + part.back() * part_size)).is_structured()) {
+			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 + part.back() * part_size)).as_structured_ptr();
 
-			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 1 + part.back() * part_size) ) + "}" :
-				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 1 + part.back() * part_size))  + "]"), part);
-			
+
+
+			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 1 + part.back() * part_size)) + "}" :
+				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 1 + part.back() * part_size)) + "]"), part);
+
 
 			RefreshText(now);
 			RefreshTable(now);
 		}
 	}
 	virtual void m_dataViewListCtrl3OnDataViewListCtrlItemActivated(wxDataViewEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 
 		int size = now.get_data_size();
-		
+
 		if (size > part_size) {
 			if (size >= part_size * part.back() && size < part_size * (part.back() + 1)) {
 				size = size - part_size * part.back();
@@ -2084,10 +2103,10 @@ protected:
 		int length = size;
 		dataViewListCtrlNo = 2; position = m_dataViewListCtrl3->GetSelectedRow();
 		if (dataViewListCtrlNo == 2 && position >= 0 && now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size)).is_structured()) {
-			now = now.get_value_list(wiz::GetIdx(now, position,  (length) / 4 * 2 + part.back() * part_size)).as_structured_ptr();
+			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size)).as_structured_ptr();
 
-			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size))  + "}" :
-				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size) ) + "]"), part);
+			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size)) + "}" :
+				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size)) + "]"), part);
 
 			RefreshText(now);
 			RefreshTable(now);
@@ -2095,7 +2114,8 @@ protected:
 		}
 	}
 	virtual void m_dataViewListCtrl4OnDataViewListCtrlItemActivated(wxDataViewEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 
@@ -2115,12 +2135,12 @@ protected:
 		dataViewListCtrlNo = 3; position = m_dataViewListCtrl4->GetSelectedRow();
 		if (dataViewListCtrlNo == 3 && position >= 0 && now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size)).is_structured()) {
 			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size)).as_structured_ptr();
-			
-		
 
-			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + 
-				std::to_string(wiz::GetIdx(now, position, (length / 4 * 3) + part.back() * part_size))  + "}" :
-				"[" + std::to_string(wiz::GetIdx(now, position, (length / 4 * 3) + part.back() * part_size))  + "]"), part);
+
+
+			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" +
+				std::to_string(wiz::GetIdx(now, position, (length / 4 * 3) + part.back() * part_size)) + "}" :
+				"[" + std::to_string(wiz::GetIdx(now, position, (length / 4 * 3) + part.back() * part_size)) + "]"), part);
 
 			RefreshText(now);
 			RefreshTable(now);
@@ -2181,7 +2201,8 @@ protected:
 
 	//
 	virtual void m_dataViewListCtrl1OnDataViewListCtrlSelectionchanged(wxDataViewEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 
@@ -2205,14 +2226,15 @@ protected:
 			ctrl[dataViewListCtrlNo]->UnselectRow(position);
 			position = temp_position;
 		}
-	
+
 		ctrl[dataViewListCtrlNo]->SelectRow(position);
 		ctrl[dataViewListCtrlNo]->SetFocus();
 
 		RefreshText2(now);
 	}
 	virtual void m_dataViewListCtrl2OnDataViewListCtrlSelectionchanged(wxDataViewEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 		dataViewListCtrlNo = 1;
@@ -2242,11 +2264,12 @@ protected:
 		RefreshText2(now);
 	}
 	virtual void m_dataViewListCtrl3OnDataViewListCtrlSelectionchanged(wxDataViewEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
-		dataViewListCtrlNo = 2;	
-		
+		dataViewListCtrlNo = 2;
+
 		wxDataViewListCtrl* ctrl[4];
 		ctrl[0] = m_dataViewListCtrl1;
 		ctrl[1] = m_dataViewListCtrl2;
@@ -2272,7 +2295,8 @@ protected:
 		RefreshText2(now);
 	}
 	virtual void m_dataViewListCtrl4OnDataViewListCtrlSelectionchanged(wxDataViewEvent& event) {
-		if (*changed) { changedEvent();
+		if (*changed) {
+			changedEvent();
 			if (!isMain) { return; }
 		}
 		dataViewListCtrlNo = 3;
@@ -2338,7 +2362,7 @@ protected:
 			dir += "/";
 			dir += frame->dir_vec[i];
 
-			dir += frame->part[i] > 0 ?  std::string(" part") + std::to_string(frame->part[i]) : "";
+			dir += frame->part[i] > 0 ? std::string(" part") + std::to_string(frame->part[i]) : "";
 		}
 
 		frame->dir_text->ChangeValue(Convert(dir));
@@ -2350,7 +2374,7 @@ protected:
 
 		frame->Show(true);
 	}
-	
+
 	virtual void SearchWindowMenuSelection(wxCommandEvent& event) {
 		if (*changed) { changedEvent(); }
 
@@ -2372,22 +2396,22 @@ protected:
 
 		LangFrame* frame = new LangFrame(&this->now, &dataViewListCtrlNo, &position, m_dataViewListCtrl1, m_dataViewListCtrl2,
 			m_dataViewListCtrl3, m_dataViewListCtrl4, textCtrl, dir_text, this->global, mode, this);
-		
+
 		frame->Show(true);
 	}
 
 public:
 
-	MainFrame(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("ClauJson Explorer"), const wxPoint& pos = wxDefaultPosition, 
+	MainFrame(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("ClauJson Explorer"), const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxSize(1024, 512), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 private:
-	MainFrame(wiz::SmartPtr<bool> changed, int mode, wiz::SmartPtr2<claujson::StructuredPtr> global, claujson::StructuredPtr now, wxWindow* parent, wxWindowID id = wxID_ANY, 
-		const wxString& title = wxT("ClauJson Explorer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(1024, 512), 
+	MainFrame(wiz::SmartPtr<bool> changed, int mode, wiz::SmartPtr2<claujson::StructuredPtr> global, claujson::StructuredPtr now, wxWindow* parent, wxWindowID id = wxID_ANY,
+		const wxString& title = wxT("ClauJson Explorer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(1024, 512),
 		long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 public:
 	~MainFrame();
-	
-	void init(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("ClauJson Explorer"), const wxPoint& pos = wxDefaultPosition, 
+
+	void init(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("ClauJson Explorer"), const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxSize(1024, 512), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 
 	void FirstFrame() {
@@ -2430,12 +2454,12 @@ public:
 				}
 			}
 		}
-	
+
 		return result;
 	}
 private:
 	// text_ctrl
-	virtual void m_textCtrlOnText(wxCommandEvent& event) { 
+	virtual void m_textCtrlOnText(wxCommandEvent& event) {
 		text_ctrl_backup = event.GetString();
 	}
 	// dir_text
@@ -2453,7 +2477,7 @@ MainFrame::MainFrame(wiz::SmartPtr<bool> changed, int mode, wiz::SmartPtr2<clauj
 	this->changed = changed;
 	this->global = global;
 	this->now = now;
-	
+
 	this->mode = mode;
 
 	part.push_back(0);
@@ -2461,7 +2485,7 @@ MainFrame::MainFrame(wiz::SmartPtr<bool> changed, int mode, wiz::SmartPtr2<clauj
 MainFrame::MainFrame(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxFrame(parent, id, title, pos, size, style)
 {
 	changed = new bool;
-	
+
 	*changed = false;
 
 	part.push_back(0);
@@ -2485,7 +2509,7 @@ void MainFrame::init(wxWindow* parent, wxWindowID id, const wxString& title, con
 	wxMenuItem* FileLoadMenu;
 	FileLoadMenu = new wxMenuItem(FileMenu, wxID_ANY, wxString(wxT("Load")), wxEmptyString, wxITEM_NORMAL);
 	FileMenu->Append(FileLoadMenu);
-	 
+
 	wxMenuItem* FileSaveMenu;
 	FileSaveMenu = new wxMenuItem(FileMenu, wxID_ANY, wxString(wxT("Save")), wxEmptyString, wxITEM_NORMAL);
 	FileMenu->Append(FileSaveMenu);
@@ -2548,9 +2572,9 @@ void MainFrame::init(wxWindow* parent, wxWindowID id, const wxString& title, con
 
 	back_button = new wxButton(this, wxID_ANY, wxT("▲"), wxDefaultPosition, wxDefaultSize, 0);
 	back_button->SetFont(wxFont(15, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString));
-		
+
 	bSizer2->Add(back_button, 1, wxALL | wxEXPAND, 5);
-	
+
 	next = new wxButton(this, wxID_ANY, wxT("▶"), wxDefaultPosition, wxDefaultSize, 0);
 	next->SetFont(wxFont(15, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString));
 
@@ -2675,7 +2699,7 @@ void MainFrame::init(wxWindow* parent, wxWindowID id, const wxString& title, con
 	dir_vec_backup.clear();
 	dir_text->Clear();
 	// click 
-	
+
 
 	// double click
 	m_dataViewListCtrl1->Connect(wxEVT_COMMAND_DATAVIEW_ITEM_ACTIVATED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl1OnDataViewListCtrlItemActivated), NULL, this);
@@ -2746,12 +2770,12 @@ MainFrame::~MainFrame()
 	m_dataViewListCtrl2->Disconnect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl2OnDataViewListCtrlSelectionchanged), NULL, this);
 	m_dataViewListCtrl3->Disconnect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl3OnDataViewListCtrlSelectionchanged), NULL, this);
 	m_dataViewListCtrl4->Disconnect(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEventHandler(MainFrame::m_dataViewListCtrl4OnDataViewListCtrlSelectionchanged), NULL, this);
-	
+
 	this->Disconnect(wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::OtherWindowMenuOnMenuSelection));
 	this->Disconnect(wxID_ANY, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MainFrame::LangMenuOnMenuSelection));
 
 	//m_code_run_button->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::m_code_run_buttonOnButtonClick), NULL, this);
-	
+
 	next->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::nextOnButtonClick), NULL, this);
 	before->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainFrame::beforeOnButtonClick), NULL, this);
 
@@ -2773,5 +2797,4 @@ public:
 };
 
 IMPLEMENT_APP(TestApp)
-
 
