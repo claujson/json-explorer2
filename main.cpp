@@ -54,9 +54,9 @@ namespace wiz {
 	claujson::parser p;
 	claujson::writer w;
 
-	inline static claujson::Arena const_str_pool;
+	inline claujson::Arena const_str_pool;
 
-	[[nodisgard]]
+	[[nodiscard]]
 	bool Parse(const std::string& str, claujson::Document& d) {
 		return p.parse_str(str, d, 1).first;
 	}
@@ -184,22 +184,12 @@ enum class Encoding {
 Encoding encoding = Encoding::UTF8;
 
 //auto default_cp = GetConsoleCP();
-
 inline std::string Convert(const wxString& str) {
-	if (Encoding::UTF8 == encoding) {
-		return str.ToUTF8().data();
-	}
-	else {
-		return str.ToStdString();
-	}
+	return str.ToStdString(wxConvUTF8);
 }
+
 inline std::string Convert(wxString&& str) {
-	if (Encoding::UTF8 == encoding) {
-		return str.ToUTF8().data();
-	}
-	else {
-		return str.ToStdString();
-	}
+	return str.ToStdString(wxConvUTF8);
 }
 
 wxString Convert(const std::string& str) {
@@ -254,7 +244,7 @@ protected:
 protected:
 	// parent`s info?
 
-	wiz::SmartPtr2<claujson::StructuredPtr> global;
+	wiz::SmartPtr<claujson::StructuredPtr> global;
 	claujson::StructuredPtr* now;
 	int* ptr_dataViewListCtrlNo;
 	long long* ptr_position;
@@ -380,13 +370,13 @@ protected:
 
 			if (now) {
 				now->Delete();
-			}
-			claujson::_Value temp = claujson::Array::Make(nullptr);
-			(*now) = temp.as_array();
+			}	
 			if (now == nullptr) {
 				return;
 			}
-
+			claujson::_Value temp = claujson::Array::Make(nullptr);
+			(*now) = temp.as_array();
+		
 			wxString wxNDJsonText = m_code->GetValue();
 			std::string ndJsonText = Convert(wxNDJsonText);
 			std::string jsonText;
@@ -485,7 +475,7 @@ public:
 	LangFrame(claujson::StructuredPtr* now, int* dataViewListCtrlNo,
 		long long* position, wxDataViewListCtrl* m_dataViewListCtrl1, wxDataViewListCtrl* m_dataViewListCtrl2,
 		wxDataViewListCtrl* m_dataViewListCtrl3, wxDataViewListCtrl* m_dataViewListCtrl4, wxTextCtrl* textCtrl, wxTextCtrl* dirCtrl,
-		wiz::SmartPtr2<claujson::StructuredPtr> global, int mode, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString,
+		wiz::SmartPtr<claujson::StructuredPtr> global, int mode, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString,
 		const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(770, 381), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 
 	~LangFrame();
@@ -495,7 +485,7 @@ public:
 LangFrame::LangFrame(claujson::StructuredPtr* now, int* dataViewListCtrlNo,
 	long long* position, wxDataViewListCtrl* m_dataViewListCtrl1, wxDataViewListCtrl* m_dataViewListCtrl2,
 	wxDataViewListCtrl* m_dataViewListCtrl3, wxDataViewListCtrl* m_dataViewListCtrl4, wxTextCtrl* textCtrl, wxTextCtrl* dirCtrl,
-	wiz::SmartPtr2<claujson::StructuredPtr> global, int mode, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
+	wiz::SmartPtr<claujson::StructuredPtr> global, int mode, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos,
 	const wxSize& size, long style) : wxFrame(parent, id, title, pos, size, style), now(now),
 	ptr_dataViewListCtrlNo(dataViewListCtrlNo), ptr_position(position), textCtrl(textCtrl), global(global), mode(mode)
 {
@@ -726,7 +716,7 @@ private:
 
 	bool isMain = false;
 
-	wiz::SmartPtr2<claujson::StructuredPtr> global;
+	wiz::SmartPtr<claujson::StructuredPtr> global;
 	claujson::StructuredPtr now = nullptr;
 
 	int dataViewListCtrlNo = -1;
@@ -752,8 +742,8 @@ private:
 	// json1 <- original, json2 <- target.
 	int checkDiff(const std::string& origin_text, const std::string& target_text, claujson::_Value* diff, bool hint) {
 		// parse json1, json2
-		static claujson::Document json1 = claujson::Document(1024 * 1024);
-		static claujson::Document json2 = claujson::Document(1024 * 1024);
+		static claujson::Document json1(1024 * 1024);
+		static claujson::Document json2(1024 * 1024);
 
 		if (wiz::p.parse_str(origin_text, json1, 1).first == 0) {
 			return 0;
@@ -989,9 +979,9 @@ private:
 
 			wxVector<wxVariant> value;
 
-			int i = 0;
+			int i = start;
 
-			for (; i < size_per_unit; ++i) {
+			for (; i < start + size_per_unit; ++i) {
 				value.clear();
 
 				if (global.get_value_list(i).is_structured()) {
@@ -1026,7 +1016,7 @@ private:
 				m_dataViewListCtrl1->AppendItem(value);
 				count++;
 			}
-			for (; i < size_per_unit * 2; ++i) {
+			for (; i < start + size_per_unit * 2; ++i) {
 				value.clear();
 
 				if (global.get_value_list(i).is_structured()) {
@@ -1062,7 +1052,7 @@ private:
 				m_dataViewListCtrl2->AppendItem(value);
 				count++;
 			}
-			for (; i < size_per_unit * 3; ++i) {
+			for (; i < start + size_per_unit * 3; ++i) {
 				value.clear();
 				if (global.get_value_list(i).is_structured()) {
 					if (wiz::ToString(global.get_const_key_list(i)).empty()) {
@@ -1097,7 +1087,7 @@ private:
 				m_dataViewListCtrl3->AppendItem(value);
 				count++;
 			}
-			for (; i < last_size; ++i) {
+			for (; i < start + last_size; ++i) {
 				value.clear();
 
 				if (global.get_value_list(i).is_structured()) {
@@ -1834,7 +1824,7 @@ protected:
 
 			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size)
 			) + "}" :
-				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size) + (length) / 4 * 2 + part.back() * part_size) + "]"), part);
+				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 2 + part.back() * part_size)) + "]"), part);
 
 			RefreshText(now);
 			RefreshTable(now);
@@ -1923,7 +1913,7 @@ protected:
 
 
 			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size)) + "}" :
-				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size) + (length) / 4 * 3 + part.back() * part_size) + "]"), part);
+				"[" + std::to_string(wiz::GetIdx(now, position, (length) / 4 * 3 + part.back() * part_size)) + "]"), part);
 
 			RefreshText(now);
 			RefreshTable(now);
@@ -2039,7 +2029,7 @@ protected:
 		dataViewListCtrlNo = 0; position = m_dataViewListCtrl1->GetSelectedRow();
 
 		if (position >= 0 && now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size) + (length) / 4 * 0 + part.back() * part_size).is_structured()) {
-			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size) + part.back() * part_size).as_structured_ptr();
+			now = now.get_value_list(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size)).as_structured_ptr();
 
 			EnterDir(wiz::ToString(claujson::_Value(now)) + (now.get_parent().is_object() ? "{" +
 				std::to_string(wiz::GetIdx(now, position, (length) / 4 * 0 + part.back() * part_size)) + "}" :
@@ -2405,7 +2395,7 @@ public:
 	MainFrame(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("ClauJson Explorer"), const wxPoint& pos = wxDefaultPosition,
 		const wxSize& size = wxSize(1024, 512), long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 private:
-	MainFrame(wiz::SmartPtr<bool> changed, int mode, wiz::SmartPtr2<claujson::StructuredPtr> global, claujson::StructuredPtr now, wxWindow* parent, wxWindowID id = wxID_ANY,
+	MainFrame(wiz::SmartPtr<bool> changed, int mode, wiz::SmartPtr<claujson::StructuredPtr> global, claujson::StructuredPtr now, wxWindow* parent, wxWindowID id = wxID_ANY,
 		const wxString& title = wxT("ClauJson Explorer"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(1024, 512),
 		long style = wxDEFAULT_FRAME_STYLE | wxTAB_TRAVERSAL);
 public:
@@ -2418,7 +2408,7 @@ public:
 		static claujson::Arena pool;
 		isMain = true;
 		mode = 1;
-		global = wiz::SmartPtr2<claujson::StructuredPtr>(new claujson::StructuredPtr(claujson::Array::Make(&pool)));
+		global = wiz::SmartPtr<claujson::StructuredPtr>(new claujson::StructuredPtr(claujson::Array::Make(&pool)));
 		now = *global;
 	}
 
@@ -2469,7 +2459,7 @@ private:
 		}
 	}
 };
-MainFrame::MainFrame(wiz::SmartPtr<bool> changed, int mode, wiz::SmartPtr2<claujson::StructuredPtr> global, claujson::StructuredPtr now, wxWindow* parent, wxWindowID id,
+MainFrame::MainFrame(wiz::SmartPtr<bool> changed, int mode, wiz::SmartPtr<claujson::StructuredPtr> global, claujson::StructuredPtr now, wxWindow* parent, wxWindowID id,
 	const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxFrame(parent, id, title, pos, size, style)
 {
 	init(parent, id, title, pos, size, style);
