@@ -6,7 +6,7 @@
 #endif
 
 
-#define WXUSINGDLL
+//#define WXUSINGDLL
 
 //#include "mimalloc-new-delete.h"
 
@@ -200,14 +200,7 @@ wxString Convert(const std::string& str) {
 		return wxString(str.c_str(), wxConvUTF8);
 	}
 	else {
-		//?
-		wxString temp(str.c_str(), wxCSConv(wxFONTENCODING_SYSTEM));
-
-		if (!str.empty() && temp.empty()) {
-			temp = wxString(str.c_str(), wxConvISO8859_1);
-		}
-
-		return temp;
+		return wxString();
 	}
 }
 wxString Convert(std::string&& str) {
@@ -215,14 +208,7 @@ wxString Convert(std::string&& str) {
 		return wxString(str.c_str(), wxConvUTF8);
 	}
 	else {
-
-		wxString temp(str.c_str(), wxCSConv(wxFONTENCODING_SYSTEM));
-
-		if (!str.empty() && temp.empty()) {
-			temp = wxString(str.c_str(), wxConvISO8859_1);
-		}
-
-		return temp;
+		return wxString();
 	}
 }
 
@@ -1235,11 +1221,11 @@ protected:
 					//global = wiz::SmartPtr2<claujson::StructuredPtr>(ut.as_structured_ptr());
 				}
 
-				m_code_run_result->ChangeValue(wxString::FromUTF8(temp.c_str()) + wxT("Load Success! file is UTF-8"));
+				m_code_run_result->ChangeValue(Convert(temp) + wxT("Load Success! file is UTF-8"));
 			}
 			else {
 				std::string temp = std::to_string(count);
-				m_code_run_result->ChangeValue(wxString::FromUTF8(temp.c_str()) + wxT("Load Failed!"));
+				m_code_run_result->ChangeValue(Convert(temp) + wxT("Load Failed!"));
 			}
 
 			now = *global;
